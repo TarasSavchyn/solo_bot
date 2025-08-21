@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from app.models import Event, Contractor, TelegramUser
+
+admin.site.register(TelegramUser)
+admin.site.register(Event)
+admin.site.register(Contractor)
