@@ -1,32 +1,32 @@
-stages:
-  - test
-  - deploy
-
-variables:
-  POSTGRES_DB: mydb
-  POSTGRES_USER: user
-  POSTGRES_PASSWORD: password
-  DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
-
-services:
-  - name: postgres:15
-    alias: postgres
-
-before_script:
-  - pip install --upgrade pip
-  - pip install -r requirements.txt
-  - python manage.py migrate
-
-test:
-  stage: test
-  image: python:3.11
-  script:
-    - pytest --disable-warnings --maxfail=1
-
-deploy:
-  stage: deploy
-  image: python:3.11
-  script:
-    - echo "Deploy stage - add your deploy commands here"
-  only:
-    - main
+#stages:
+#  - test
+#  - deploy
+#
+#variables:
+#  POSTGRES_DB: mydb
+#  POSTGRES_USER: user
+#  POSTGRES_PASSWORD: password
+#  DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
+#
+#services:
+#  - name: postgres:15
+#    alias: postgres
+#
+#before_script:
+#  - pip install --upgrade pip
+#  - pip install -r requirements.txt
+#  - python manage.py migrate
+#
+#test:
+#  stage: test
+#  image: python:3.11
+#  script:
+#    - pytest --disable-warnings --maxfail=1
+#
+#deploy:
+#  stage: deploy
+#  image: python:3.11
+#  script:
+#    - echo "Deploy stage - add your deploy commands here"
+#  only:
+#    - main
