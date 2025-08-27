@@ -51,3 +51,7 @@ static_root/
 *.swo
 .DS_Store
 Thumbs.db
+
+
+*.json
+credentials.json
