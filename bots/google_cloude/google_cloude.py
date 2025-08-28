@@ -88,19 +88,16 @@ class GoogleDriveManager:
         if remote_name is None:
             remote_name = os.path.basename(local_path)
 
-        file_metadata = {"title": remote_name, "parents": [{"id": self.folder_id}]}
-
         try:
+            file_metadata = {"title": remote_name, "parents": [{"id": self.folder_id}]}
             file = self.drive.CreateFile(file_metadata)
             file.SetContentFile(local_path)
             file.Upload()
+
             logger.info(f"✅ File uploaded: {remote_name} (ID: {file['id']})")
             return file["id"]
-        except ApiRequestError as e:
-            logger.error(f"Google Drive API error: {e}")
-            return None
         except Exception as e:
-            logger.error(f"Failed to upload file: {e}")
+            logger.error(f"Failed to upload file '{remote_name}': {e}")
             return None
 
 
