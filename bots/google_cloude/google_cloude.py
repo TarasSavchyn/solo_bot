@@ -2,7 +2,6 @@ import os
 import logging
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from pydrive2.files import ApiRequestError
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
@@ -25,60 +24,63 @@ class GoogleDriveManager:
         self.folder_id = None
         self._authenticate()
         self._ensure_folder_exists()
+        self._make_folder_public()
 
     def _authenticate(self):
-        try:
-            gauth = GoogleAuth()
-            gauth.LoadClientConfigFile(self.client_secrets_path)
+        gauth = GoogleAuth()
+        gauth.LoadClientConfigFile(self.client_secrets_path)
+        gauth.settings["get_refresh_token"] = True
+        gauth.settings["access_type"] = "offline"
+        gauth.settings["oauth_scope"] = ["https://www.googleapis.com/auth/drive.file"]
 
-            gauth.settings["get_refresh_token"] = True
-            gauth.settings["access_type"] = "offline"
-            gauth.settings["oauth_scope"] = [
-                "https://www.googleapis.com/auth/drive.file"
-            ]
+        if os.path.exists(self.credentials_path):
+            gauth.LoadCredentialsFile(self.credentials_path)
 
-            if os.path.exists(self.credentials_path):
-                gauth.LoadCredentialsFile(self.credentials_path)
+        if gauth.credentials is None:
+            gauth.LocalWebserverAuth()
+        elif gauth.access_token_expired:
+            gauth.Refresh()
 
-            if gauth.credentials is None:
-                gauth.LocalWebserverAuth()
-            elif gauth.access_token_expired:
-                gauth.Refresh()
-
-            gauth.SaveCredentialsFile(self.credentials_path)
-            self.drive = GoogleDrive(gauth)
-            logger.info("✅ Authentication successful.")
-        except Exception as e:
-            logger.error(f"Authentication failed: {e}")
-            raise
+        gauth.SaveCredentialsFile(self.credentials_path)
+        self.drive = GoogleDrive(gauth)
+        logger.info("✅ Authentication successful.")
 
     def _ensure_folder_exists(self):
-        try:
-            file_list = self.drive.ListFile(
-                {
-                    "q": f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
-                }
-            ).GetList()
+        file_list = self.drive.ListFile(
+            {
+                "q": f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+            }
+        ).GetList()
 
-            if file_list:
-                self.folder_id = file_list[0]["id"]
-                logger.info(
-                    f"📁 Existing folder found: {self.folder_name} (ID: {self.folder_id})"
-                )
-            else:
-                folder_metadata = {
-                    "title": self.folder_name,
-                    "mimeType": "application/vnd.google-apps.folder",
-                }
-                folder = self.drive.CreateFile(folder_metadata)
-                folder.Upload()
-                self.folder_id = folder["id"]
-                logger.info(
-                    f"📁 New folder created: {self.folder_name} (ID: {self.folder_id})"
-                )
+        if file_list:
+            self.folder_id = file_list[0]["id"]
+            logger.info(
+                f"📁 Existing folder found: {self.folder_name} (ID: {self.folder_id})"
+            )
+        else:
+            folder_metadata = {
+                "title": self.folder_name,
+                "mimeType": "application/vnd.google-apps.folder",
+            }
+            folder = self.drive.CreateFile(folder_metadata)
+            folder.Upload()
+            self.folder_id = folder["id"]
+            logger.info(
+                f"📁 New folder created: {self.folder_name} (ID: {self.folder_id})"
+            )
+
+    def _make_folder_public(self):
+        try:
+            folder = self.drive.CreateFile({"id": self.folder_id})
+            folder.InsertPermission(
+                {"type": "anyone", "value": "anyone", "role": "reader"}
+            )
+            logger.info(f"🌐 Folder {self.folder_name} is now public")
         except Exception as e:
-            logger.error(f"Failed to create or get folder: {e}")
-            raise
+            logger.error(f"Failed to make folder public: {e}")
+
+    def get_folder_link(self) -> str:
+        return f"https://drive.google.com/drive/folders/{self.folder_id}?usp=sharing"
 
     def upload_file(self, local_path: str, remote_name: str = None) -> str | None:
         if not os.path.exists(local_path):
@@ -93,7 +95,6 @@ class GoogleDriveManager:
             file = self.drive.CreateFile(file_metadata)
             file.SetContentFile(local_path)
             file.Upload()
-
             logger.info(f"✅ File uploaded: {remote_name} (ID: {file['id']})")
             return file["id"]
         except Exception as e:
