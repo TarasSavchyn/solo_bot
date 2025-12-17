@@ -3,6 +3,9 @@ PIP = pip
 MANAGE = $(PYTHON) manage.py
 DB_PORT = 5234
 APP_PORT = 8000
+VENV_PYTHON=./venv/bin/python
+
+
 
 run:
 	docker compose up -d
@@ -13,7 +16,7 @@ run:
 	$(MANAGE) runserver 127.0.0.1:$(APP_PORT)
 
 bot:
-	$(PYTHON) -m bots.telegram.bot
+	$(VENV_PYTHON) -m bots.telegram.bot
 
 migrate:
 	$(MANAGE) makemigrations

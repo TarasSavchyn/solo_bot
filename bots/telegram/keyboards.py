@@ -20,7 +20,7 @@ main_menu = ReplyKeyboardMarkup(
 post_upload_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="📤 Продовжити")],
-        [KeyboardButton(text="🏠 Стоп / Головне меню")],
+        [KeyboardButton(text="🏠 Головне меню")],
     ],
     resize_keyboard=True,
 )
