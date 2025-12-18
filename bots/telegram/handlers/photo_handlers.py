@@ -20,27 +20,6 @@ ALBUM_TIMEOUT = 1.0
 DOC_TIMEOUT = 1.0
 
 
-async def start_command(message: types.Message, state: FSMContext):
-    await state.clear()
-    await message.answer(
-        "Ласкаво просимо! Натисніть кнопку, щоб почати роботу:",
-        reply_markup=start_keyboard,
-    )
-
-
-async def open_main_menu(message: types.Message):
-    await message.answer("Головне меню:", reply_markup=main_menu)
-
-
-async def info_command(message: types.Message):
-    await message.answer("Цей бот дозволяє надсилати фото або файли на Google Drive.")
-
-
-async def exit_to_start(message: types.Message, state: FSMContext):
-    await state.clear()
-    await message.answer("Повертаємось у стартове меню", reply_markup=start_keyboard)
-
-
 async def send_drive_link(message: types.Message):
     link = gdrive.get_folder_link()
     await message.answer(
@@ -104,32 +83,8 @@ async def post_upload_action(message: types.Message, state: FSMContext):
         await message.answer("Головне меню:", reply_markup=main_menu)
 
 
-async def show_location(message: types.Message):
-    latitude = 49.8419
-    longitude = 24.0315
-
-    await message.answer("📍 Місце проведення:")
-    await message.bot.send_location(
-        chat_id=message.chat.id, latitude=latitude, longitude=longitude
-    )
-
-
-async def start_poll(message: types.Message):
-    await message.answer_poll(
-        question="Який формат вам більше підходить?",
-        options=["Онлайн", "Офлайн", "Гібрид"],
-        is_anonymous=False,
-    )
-
 
 def register_handlers(dp: Dispatcher):
-    dp.message.register(start_command, F.text == "/start")
-    dp.message.register(open_main_menu, F.text == "🚀 Почати роботу")
-
-    dp.message.register(show_location, F.text == "📍 Місце проведення")
-    dp.message.register(start_poll, F.text == "🗳 Опитування")
-    dp.message.register(info_command, F.text == "ℹ️ Інформація")
-    dp.message.register(exit_to_start, F.text == "❌ Вихід в головне меню")
     dp.message.register(ask_upload, F.text == "📤 Передати фото")
     dp.message.register(
         handle_uploads,

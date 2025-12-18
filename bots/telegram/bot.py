@@ -4,7 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
-from bots.telegram.handlers.handlers import register_handlers
+# from bots.telegram.handlers.photo_handlers import register_handlers
 
 load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -19,7 +19,7 @@ dp = Dispatcher()
 
 
 async def main():
-    register_handlers(dp)
+    # register_handlers(dp)
     logger.info("Bot is running...")
     await dp.start_polling(bot)
 
