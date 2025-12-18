@@ -5,7 +5,6 @@ from aiogram.types import ContentType
 from aiogram.fsm.context import FSMContext
 
 from bots.google_cloude.google_cloude import gdrive
-from bots.telegram.keyboards import start_keyboard, main_menu, post_upload_keyboard
 from bots.telegram.states import PhotoStates
 from bots.telegram.utils import upload_file, upload_photo
 
@@ -81,7 +80,6 @@ async def post_upload_action(message: types.Message, state: FSMContext):
     elif message.text == "🏠 Головне меню":
         await state.clear()
         await message.answer("Головне меню:", reply_markup=main_menu)
-
 
 
 def register_handlers(dp: Dispatcher):
