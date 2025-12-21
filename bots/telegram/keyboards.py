@@ -1,8 +1,6 @@
 from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
-    ReplyKeyboardMarkup,
-    KeyboardButton,
 )
 
 
@@ -17,19 +15,19 @@ def build_room_menu() -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
-                    text="📤 Посилання на GoogleDrive з фото які робили гості",
+                    text="📤 Фото від гостей",
                     callback_data="get_drive_guests_link",
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="📤 Передати фото / файл",
+                    text="📤 Передати фото/файл",
                     callback_data="upload_photo_file",
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="📤 Посилання на GoogleDrive з фото від фотографа",
+                    text="📤 Фото від фотографа",
                     callback_data="get_drive_photographer_link",
                 )
             ],
