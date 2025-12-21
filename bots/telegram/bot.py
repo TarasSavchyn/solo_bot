@@ -12,9 +12,6 @@ from bots.telegram.handlers.initialization import register_handlers
 from bots.telegram.handlers.room_callbacks import (
     register_handlers as register_room_handlers,
 )
-from bots.telegram.handlers.photo_handlers import (
-    register_handlers as register_photo_handlers,
-)
 
 
 load_dotenv()
@@ -33,7 +30,6 @@ dp = Dispatcher(bot=bot)
 async def main():
     register_handlers(dp)
     register_room_handlers(dp)
-    # register_photo_handlers(dp)
     logger.info("Bot is running...")
     await dp.start_polling(bot)
 

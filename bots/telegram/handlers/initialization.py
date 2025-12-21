@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery
 from asgiref.sync import sync_to_async
 from app.models import Event, TelegramUser
 from bots.telegram.keyboards import build_room_menu
@@ -97,12 +98,30 @@ async def leave_callback(callback: types.CallbackQuery, state: FSMContext):
         )
     else:
         await callback.message.answer("❌ Ви ще не в кімнаті.")
-    await callback.answer()  # закриває loading на кнопці
+    await callback.answer()
+
+
+async def get_room_link(callback: CallbackQuery):
+    user = await sync_to_async(TelegramUser.objects.get)(
+        telegram_id=callback.from_user.id
+    )
+    current_event = await sync_to_async(lambda u: u.current_event)(user)
+
+    if not current_event:
+        await callback.answer("❌ Ви ще не в кімнаті.", show_alert=True)
+        return
+
+    bot_username = (await callback.bot.get_me()).username
+    link = f"https://t.me/{bot_username}?start={current_event.code}"
+
+    await callback.message.answer(f"📎 Посилання на кімнату: {link}")
+    await callback.answer()
 
 
 def register_handlers(dp: Dispatcher):
     dp.message.register(start_command, Command(commands=["start"]))
     dp.message.register(leave_command, Command(commands=["leave"]))
+    dp.callback_query.register(get_room_link, lambda c: c.data == "get_room_link")
     dp.message.register(
         enter_event_code,
         EventStates.waiting_for_code,
