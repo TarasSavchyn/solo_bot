@@ -24,6 +24,50 @@ ALBUM_TIMEOUT = 1.0
 DOC_TIMEOUT = 1.0
 
 
+async def get_event_drive_photographer_link(callback: CallbackQuery):
+    user = await sync_to_async(
+        TelegramUser.objects.select_related("current_event").get
+    )(telegram_id=callback.from_user.id)
+
+    event = user.current_event
+
+    if not event:
+        await callback.answer("❌ Ви ще не в кімнаті.", show_alert=True)
+        return
+
+    if not event.event_drive_photographer_link:
+        await callback.answer("⏳ Фото ще не додано.", show_alert=True)
+        return
+
+    await callback.message.answer(
+        f"📤 Посилання на фото від фотографа:\n{event.event_drive_photographer_link}",
+        disable_web_page_preview=True,
+    )
+    await callback.answer()
+
+
+async def get_timing_link(callback: CallbackQuery):
+    user = await sync_to_async(
+        TelegramUser.objects.select_related("current_event").get
+    )(telegram_id=callback.from_user.id)
+
+    event = user.current_event
+
+    if not event:
+        await callback.answer("❌ Ви ще не в кімнаті.", show_alert=True)
+        return
+
+    if not event.event_timing_link:
+        await callback.answer("⏳ Таймінг ще не додано.", show_alert=True)
+        return
+
+    await callback.message.answer(
+        f"📤 Посилання на таймінг:\n{event.event_timing_link}",
+        disable_web_page_preview=True,
+    )
+    await callback.answer()
+
+
 async def send_drive_link(callback: CallbackQuery):
     link = gdrive.get_folder_link()
     await callback.message.answer(
@@ -99,7 +143,7 @@ async def handle_uploads(message: types.Message, state: FSMContext):
 async def room_menu_callback(callback: CallbackQuery, state: FSMContext):
     if callback.data == "upload_photo_file":
         await ask_upload(callback, state)
-    elif callback.data == "get_drive_link":
+    elif callback.data == "get_drive_guests_link":
         await send_drive_link(callback)
     elif callback.data == "leave_room":
         await leave_room_callback(callback, state)
@@ -109,6 +153,7 @@ async def room_menu_callback(callback: CallbackQuery, state: FSMContext):
 
 def register_handlers(dp: Dispatcher):
     dp.message.register(start_command, F.text.startswith("/start"))
+    dp.callback_query.register(get_timing_link, lambda c: c.data == "get_timing_link")
     dp.message.register(
         enter_event_code,
         EventStates.waiting_for_code,
@@ -122,5 +167,15 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(
         room_menu_callback,
         lambda c: c.data
-        in ["upload_photo_file", "get_drive_link", "leave_room", "get_room_link"],
+        in [
+            "upload_photo_file",
+            "get_drive_guests_link",
+            "leave_room",
+            "get_room_link",
+        ],
+    )
+
+    dp.callback_query.register(
+        get_event_drive_photographer_link,
+        lambda c: c.data == "get_drive_photographer_link",
     )

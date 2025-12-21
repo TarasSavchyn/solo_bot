@@ -12,6 +12,23 @@ class Event(models.Model):
     name = models.CharField(
         max_length=255,
     )
+    event_timing_link = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
+    event_drive_guests_link = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    event_drive_photographer_link = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
     is_active = models.BooleanField(
         default=True,
     )

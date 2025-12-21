@@ -11,19 +11,32 @@ def build_room_menu() -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
+                    text="📤 Посилання на таймінг",
+                    callback_data="get_timing_link",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📤 Посилання на GoogleDrive з фото які робили гості",
+                    callback_data="get_drive_guests_link",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📤 Передати фото / файл",
+                    callback_data="upload_photo_file",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📤 Посилання на GoogleDrive з фото від фотографа",
+                    callback_data="get_drive_photographer_link",
+                )
+            ],
+            [
+                InlineKeyboardButton(
                     text="📎 Отримати посилання на кімнату",
                     callback_data="get_room_link",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📤 Посилання на GoogleDrive з фото",
-                    callback_data="get_drive_link",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📤 Передати фото / файл", callback_data="upload_photo_file"
                 )
             ],
             [
