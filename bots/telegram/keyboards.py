@@ -1,26 +1,46 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-
-start_keyboard = ReplyKeyboardMarkup(
-    keyboard=[[KeyboardButton(text="🚀 Почати роботу")]],
-    resize_keyboard=True,
-)
-
-main_menu = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="📤 Передати фото")],
-        [KeyboardButton(text="📤  Посилання на GoogleDrive з фото")],
-        [KeyboardButton(text="📍 Місце проведення")],
-        [KeyboardButton(text="🗳 Опитування")],
-        [KeyboardButton(text="❌ Вихід в головне меню")],
-    ],
-    resize_keyboard=True,
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
 )
 
 
-post_upload_keyboard = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="📤 Продовжити")],
-        [KeyboardButton(text="🏠 Стоп / Головне меню")],
-    ],
-    resize_keyboard=True,
-)
+def build_room_menu() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="📤 Посилання на таймінг",
+                    callback_data="get_timing_link",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📤 Фото від гостей",
+                    callback_data="get_drive_guests_link",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📤 Передати фото/файл",
+                    callback_data="upload_photo_file",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📤 Фото від фотографа",
+                    callback_data="get_drive_photographer_link",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📎 Отримати посилання на кімнату",
+                    callback_data="get_room_link",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="❌ Вийти з кімнати", callback_data="leave_room"
+                )
+            ],
+        ]
+    )
