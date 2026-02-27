@@ -1,7 +1,6 @@
 import os
-import json
-import logging
 import tempfile
+import logging
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
@@ -10,6 +9,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class GoogleDriveManager:
     def __init__(
         self,
@@ -17,17 +17,13 @@ class GoogleDriveManager:
         credentials_filename="credentials.json",
         folder_name="MyUploads",
     ):
-        self.folder_name = folder_name
-        self.drive = None
-
-        # paths
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.credentials_path = os.path.join(base_dir, credentials_filename)
+        self.folder_name = folder_name
+        self.folder_id = None
 
-        # client_secrets: ENV or file
+        # Use ENV variable if exists, otherwise local file
         client_secret_env = os.getenv("GDRIVE_CLIENT_SECRETS")
         if client_secret_env:
-            # створюємо тимчасовий файл із JSON з ENV
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
             tmp.write(client_secret_env.encode())
             tmp.close()
@@ -39,6 +35,8 @@ class GoogleDriveManager:
                     "No client_secrets.json file or GDRIVE_CLIENT_SECRETS env variable found!"
                 )
 
+        self.credentials_path = os.path.join(base_dir, credentials_filename)
+        self.drive = None
         self._authenticate()
         self._ensure_folder_exists()
         self._make_folder_public()
@@ -113,4 +111,5 @@ class GoogleDriveManager:
             return None
 
 
+# Initialize Google Drive manager
 gdrive = GoogleDriveManager(folder_name="EventAgencyUploads")
