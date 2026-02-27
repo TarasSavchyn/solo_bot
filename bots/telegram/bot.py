@@ -1,9 +1,13 @@
 import os
 import django
+import sys
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
+
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "event_agency.settings")
 django.setup()
