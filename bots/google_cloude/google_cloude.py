@@ -1,13 +1,16 @@
 import os
 import tempfile
+import json
 import logging
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class GoogleDriveManager:
     def __init__(
@@ -18,11 +21,10 @@ class GoogleDriveManager:
     ):
         base_dir = os.path.dirname(os.path.abspath(__file__))
 
-        # Спробуємо взяти client_secrets з ENV
         client_secret_env = os.getenv("GDRIVE_CLIENT_SECRETS")
         if client_secret_env:
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
-            tmp.write(client_secret_env.encode())
+            tmp.write(json.dumps(json.loads(client_secret_env)).encode())
             tmp.close()
             self.client_secrets_path = tmp.name
             logger.info(f"Using GDRIVE_CLIENT_SECRETS env variable (tmp file {self.client_secrets_path})")
