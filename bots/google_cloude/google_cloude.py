@@ -9,7 +9,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class GoogleDriveManager:
     def __init__(
         self,
@@ -18,18 +17,18 @@ class GoogleDriveManager:
         folder_name="MyUploads",
     ):
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.folder_name = folder_name
-        self.folder_id = None
 
-        # Use ENV variable if exists, otherwise local file
+        # Спробуємо взяти client_secrets з ENV
         client_secret_env = os.getenv("GDRIVE_CLIENT_SECRETS")
         if client_secret_env:
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
             tmp.write(client_secret_env.encode())
             tmp.close()
             self.client_secrets_path = tmp.name
+            logger.info(f"Using GDRIVE_CLIENT_SECRETS env variable (tmp file {self.client_secrets_path})")
         else:
             self.client_secrets_path = os.path.join(base_dir, client_secrets_filename)
+            logger.info(f"Using local client_secrets.json at {self.client_secrets_path}")
             if not os.path.exists(self.client_secrets_path):
                 raise RuntimeError(
                     "No client_secrets.json file or GDRIVE_CLIENT_SECRETS env variable found!"
@@ -37,6 +36,9 @@ class GoogleDriveManager:
 
         self.credentials_path = os.path.join(base_dir, credentials_filename)
         self.drive = None
+        self.folder_name = folder_name
+        self.folder_id = None
+
         self._authenticate()
         self._ensure_folder_exists()
         self._make_folder_public()
@@ -61,11 +63,9 @@ class GoogleDriveManager:
         logger.info("✅ Authentication successful.")
 
     def _ensure_folder_exists(self):
-        file_list = self.drive.ListFile(
-            {
-                "q": f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
-            }
-        ).GetList()
+        file_list = self.drive.ListFile({
+            "q": f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+        }).GetList()
 
         if file_list:
             self.folder_id = file_list[0]["id"]
@@ -73,7 +73,7 @@ class GoogleDriveManager:
         else:
             folder_metadata = {
                 "title": self.folder_name,
-                "mimeType": "application/vnd.google-apps.folder",
+                "mimeType": "application/vnd.google-apps.folder"
             }
             folder = self.drive.CreateFile(folder_metadata)
             folder.Upload()
@@ -111,5 +111,4 @@ class GoogleDriveManager:
             return None
 
 
-# Initialize Google Drive manager
 gdrive = GoogleDriveManager(folder_name="EventAgencyUploads")
