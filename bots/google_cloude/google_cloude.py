@@ -1,13 +1,10 @@
 import os
-import tempfile
-import json
 import logging
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -20,27 +17,11 @@ class GoogleDriveManager:
         folder_name="MyUploads",
     ):
         base_dir = os.path.dirname(os.path.abspath(__file__))
-
-        client_secret_env = os.getenv("GDRIVE_CLIENT_SECRETS")
-        if client_secret_env:
-            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
-            tmp.write(json.dumps(json.loads(client_secret_env)).encode())
-            tmp.close()
-            self.client_secrets_path = tmp.name
-            logger.info(f"Using GDRIVE_CLIENT_SECRETS env variable (tmp file {self.client_secrets_path})")
-        else:
-            self.client_secrets_path = os.path.join(base_dir, client_secrets_filename)
-            logger.info(f"Using local client_secrets.json at {self.client_secrets_path}")
-            if not os.path.exists(self.client_secrets_path):
-                raise RuntimeError(
-                    "No client_secrets.json file or GDRIVE_CLIENT_SECRETS env variable found!"
-                )
-
+        self.client_secrets_path = os.path.join(base_dir, client_secrets_filename)
         self.credentials_path = os.path.join(base_dir, credentials_filename)
         self.drive = None
         self.folder_name = folder_name
         self.folder_id = None
-
         self._authenticate()
         self._ensure_folder_exists()
         self._make_folder_public()
@@ -65,27 +46,35 @@ class GoogleDriveManager:
         logger.info("✅ Authentication successful.")
 
     def _ensure_folder_exists(self):
-        file_list = self.drive.ListFile({
-            "q": f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
-        }).GetList()
+        file_list = self.drive.ListFile(
+            {
+                "q": f"title='{self.folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+            }
+        ).GetList()
 
         if file_list:
             self.folder_id = file_list[0]["id"]
-            logger.info(f"📁 Existing folder found: {self.folder_name} (ID: {self.folder_id})")
+            logger.info(
+                f"📁 Existing folder found: {self.folder_name} (ID: {self.folder_id})"
+            )
         else:
             folder_metadata = {
                 "title": self.folder_name,
-                "mimeType": "application/vnd.google-apps.folder"
+                "mimeType": "application/vnd.google-apps.folder",
             }
             folder = self.drive.CreateFile(folder_metadata)
             folder.Upload()
             self.folder_id = folder["id"]
-            logger.info(f"📁 New folder created: {self.folder_name} (ID: {self.folder_id})")
+            logger.info(
+                f"📁 New folder created: {self.folder_name} (ID: {self.folder_id})"
+            )
 
     def _make_folder_public(self):
         try:
             folder = self.drive.CreateFile({"id": self.folder_id})
-            folder.InsertPermission({"type": "anyone", "value": "anyone", "role": "reader"})
+            folder.InsertPermission(
+                {"type": "anyone", "value": "anyone", "role": "reader"}
+            )
             logger.info(f"🌐 Folder {self.folder_name} is now public")
         except Exception as e:
             logger.error(f"Failed to make folder public: {e}")
