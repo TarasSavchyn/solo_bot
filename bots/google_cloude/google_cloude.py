@@ -1,5 +1,7 @@
 import os
+import json
 import logging
+from google.oauth2.service_account import Credentials
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
@@ -27,22 +29,24 @@ class GoogleDriveManager:
         self._make_folder_public()
 
     def _authenticate(self):
+
+        service_account_json = os.getenv("GOOGLE_SERVICE_ACCOUNT")
+
+        if not service_account_json:
+            raise ValueError("GOOGLE_SERVICE_ACCOUNT env variable not set")
+
+        creds_dict = json.loads(service_account_json)
+
+        credentials = Credentials.from_service_account_info(
+            creds_dict,
+            scopes=["https://www.googleapis.com/auth/drive"]
+        )
+
         gauth = GoogleAuth()
-        gauth.LoadClientConfigFile(self.client_secrets_path)
-        gauth.settings["get_refresh_token"] = True
-        gauth.settings["access_type"] = "offline"
-        gauth.settings["oauth_scope"] = ["https://www.googleapis.com/auth/drive.file"]
+        gauth.credentials = credentials
 
-        if os.path.exists(self.credentials_path):
-            gauth.LoadCredentialsFile(self.credentials_path)
-
-        if gauth.credentials is None:
-            gauth.LocalWebserverAuth()
-        elif gauth.access_token_expired:
-            gauth.Refresh()
-
-        gauth.SaveCredentialsFile(self.credentials_path)
         self.drive = GoogleDrive(gauth)
+
         logger.info("✅ Authentication successful.")
 
     def _ensure_folder_exists(self):
