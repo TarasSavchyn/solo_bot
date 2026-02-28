@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
@@ -10,15 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleDriveManager:
-    def __init__(
-        self,
-        client_secrets_filename="client_secrets.json",
-        credentials_filename="credentials.json",
-        folder_name="MyUploads",
-    ):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.client_secrets_path = os.path.join(base_dir, client_secrets_filename)
-        self.credentials_path = os.path.join(base_dir, credentials_filename)
+    def __init__(self, folder_name="MyUploads"):
         self.drive = None
         self.folder_name = folder_name
         self.folder_id = None
@@ -28,22 +21,23 @@ class GoogleDriveManager:
 
     def _authenticate(self):
         gauth = GoogleAuth()
-        gauth.LoadClientConfigFile(self.client_secrets_path)
-        gauth.settings["get_refresh_token"] = True
-        gauth.settings["access_type"] = "offline"
-        gauth.settings["oauth_scope"] = ["https://www.googleapis.com/auth/drive.file"]
 
-        if os.path.exists(self.credentials_path):
-            gauth.LoadCredentialsFile(self.credentials_path)
+        creds_json = os.getenv("GOOGLE_SERVICE_ACCOUNT")
 
-        if gauth.credentials is None:
-            gauth.LocalWebserverAuth()
-        elif gauth.access_token_expired:
-            gauth.Refresh()
+        if not creds_json:
+            raise ValueError("GOOGLE_SERVICE_ACCOUNT env variable not set")
 
-        gauth.SaveCredentialsFile(self.credentials_path)
+        creds_dict = json.loads(creds_json)
+
+        gauth.settings["client_config_backend"] = "service"
+        gauth.settings["service_config"] = {
+            "client_json_dict": creds_dict,
+        }
+
+        gauth.ServiceAuth()
+
         self.drive = GoogleDrive(gauth)
-        logger.info("✅ Authentication successful.")
+        logger.info("✅ Service account authentication successful.")
 
     def _ensure_folder_exists(self):
         file_list = self.drive.ListFile(

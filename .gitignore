@@ -34,5 +34,5 @@ static_root/
 Thumbs.db
 
 
-#*.json
-#credentials.json
+*.json
+credentials.json
