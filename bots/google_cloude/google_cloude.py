@@ -1,9 +1,13 @@
 import os
 import json
 import logging
+
+from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
