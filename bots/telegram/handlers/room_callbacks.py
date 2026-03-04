@@ -16,7 +16,7 @@ from bots.telegram.handlers.initialization import (
 from bots.telegram.keyboards import build_room_menu
 from bots.telegram.states import EventStates, PhotoStates
 from bots.telegram.utils import upload_file, upload_photo
-# from bots.google_cloude.google_cloude import gdrive
+from bots.google_cloude.google_cloude import gdrive
 
 _album_cache: dict[str, list[types.Message]] = {}
 _doc_cache: dict[int, list[types.Message]] = {}
@@ -69,10 +69,10 @@ async def get_timing_link(callback: CallbackQuery):
 
 
 async def send_drive_link(callback: CallbackQuery):
-    # link = gdrive.get_folder_link()
-    # await callback.message.answer(
-        # f"📂 Посилання на папку з фото:\n{link}", disable_web_page_preview=True
-    # )
+    link = gdrive.get_folder_link()
+    await callback.message.answer(
+        f"📂 Посилання на папку з фото:\n{link}", disable_web_page_preview=True
+    )
     await callback.answer()
 
 
