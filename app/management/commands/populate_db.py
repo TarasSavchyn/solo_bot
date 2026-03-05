@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
         for i in range(5):
             event = Event.objects.create(
-                code=f"event{i}",
+                code=f"{i}{i}{i}",
                 telegram_link=f"https://t.me/test_event_{i}",
                 name=f"Test Event {i}",
                 event_timing_link="https://example.com/timing",
