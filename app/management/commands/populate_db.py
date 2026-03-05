@@ -15,9 +15,9 @@ class Command(BaseCommand):
                 code=f"{i}{i}{i}",
                 telegram_link=f"https://t.me/test_event_{i}",
                 name=f"Test Event {i}",
-                event_timing_link="https://example.com/timing",
-                event_drive_guests_link="https://drive.google.com/guests",
-                event_drive_photographer_link="https://drive.google.com/photos",
+                event_timing_link="https://drive.google.com/drive/folders/1le1-yrs0qt-xTKrjJh6X1c5vdEptLVTg",
+                event_drive_guests_link="https://drive.google.com/drive/folders/1le1-yrs0qt-xTKrjJh6X1c5vdEptLVTg",
+                event_drive_photographer_link="https://drive.google.com/drive/folders/1le1-yrs0qt-xTKrjJh6X1c5vdEptLVTg",
             )
             events.append(event)
 
